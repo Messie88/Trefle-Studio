@@ -1,0 +1,41 @@
+@import "tailwindcss";
+
+@theme {
+  --color-cream: #fef1c5;
+  --color-ivory: #fffefd;
+  --color-deep: #061840;
+  --color-blue: #1a4486;
+  --color-red: #c54126;
+  --color-amber: #f2b93f;
+  --font-serif: var(--font-hedvig), "Hedvig Letters Serif", serif;
+  --font-sans: "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  /* Same vertical gradient as the old noise shader: bgBot (top) → bgTop (bottom). */
+  background: linear-gradient(
+    to bottom,
+    var(--color-blue),
+    var(--color-deep)
+  );
+  background-color: var(--color-deep);
+  color: var(--color-cream);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  height: 100vh;
+  /* overflow: hidden; */
+}
+
+h1 {
+  font-family: var(--font-hedvig);
+  /* Fluid: 48px at 375px viewport -> 148px at 1728px viewport.
+     slope = (148 - 48) / (1728 - 375) = 100 / 1353 ≈ 7.39vw
+     offset = 148 - 7.39 * 17.28 ≈ 20px */
+  font-size: clamp(48px, calc(7.4vw + 20px), 148px);
+  line-height: 1;
+  text-box-trim: trim-end;
+  text-box-edge: text alphabetic;
+}
