@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
+import Script from "next/script";
 
+import { buildThemeInitScript } from "@/app/lib/theme-init-script";
 import ClientLayout from "./layout-client";
 import { Hedvig_Letters_Serif } from "next/font/google";
 import "./globals.css";
@@ -22,9 +24,17 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="fr" className={hedvig.variable}>
+    <html lang="fr" className={hedvig.variable} suppressHydrationWarning>
+      <head>
+        <Script
+          id="theme-init"
+          strategy="beforeInteractive"
+          dangerouslySetInnerHTML={{ __html: buildThemeInitScript() }}
+        />
+      </head>
       <body suppressHydrationWarning>
-        <ClientLayout>{children}</ClientLayout></body>
+        <ClientLayout>{children}</ClientLayout>
+      </body>
     </html>
   );
 }

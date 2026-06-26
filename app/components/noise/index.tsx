@@ -1,9 +1,12 @@
 "use client";
 
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 import * as THREE from "three";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
+
+import { themes } from "@/app/lib/themes";
+import { useThemeStore } from "@/app/store/theme";
 
 import vertexSrc from "./vertex.glsl";
 import fragmentSrc from "./fragment.glsl";
@@ -13,12 +16,19 @@ interface NoiseShaderProps {
   className?: string;
 }
 
-export default function NoiseShader({
-  intensity = 0.5,
-  className,
-}: NoiseShaderProps) {
+type ShaderUniforms = {
+  u_time: { value: number };
+  u_res: { value: THREE.Vector2 };
+  u_mouse: { value: THREE.Vector2 };
+  u_intensity: { value: number };
+  u_ink: { value: THREE.Vector3 };
+};
+
+export default function NoiseShader({ intensity = 0.5, className }: NoiseShaderProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const uniformsRef = useRef<ShaderUniforms | null>(null);
+  const markDirtyRef = useRef<(() => void) | null>(null);
 
   useGSAP(() => {
     const canvas = canvasRef.current;
@@ -26,17 +36,12 @@ export default function NoiseShader({
     if (!canvas || !container) return;
 
     gsap.from(canvas, {
-      duration: 2,
-      width: 0,
-      height: 0,
-      skewY: -50,
-      skewX: 50,
-      scale: 10,
-      position: "absolute",
-      top: "50%",
-      left: "50%",
-      ease: "expo.out",
-      rotationZ: 90,
+      duration: 1,
+      scale: 5,
+      opacity: 0,
+      ease: "sine.inOut",
+      rotationZ: 45,
+      delay: 0.5,
     });
 
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
@@ -53,17 +58,17 @@ export default function NoiseShader({
     const scene = new THREE.Scene();
     const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
 
-    const uniforms = {
+    const uniforms: ShaderUniforms = {
       u_time: { value: 0 },
       u_res: {
-        value: new THREE.Vector2(
-          container.clientWidth * dpr,
-          container.clientHeight * dpr,
-        ),
+        value: new THREE.Vector2(container.clientWidth * dpr, container.clientHeight * dpr),
       },
       u_mouse: { value: new THREE.Vector2(10) },
       u_intensity: { value: intensity },
+      u_ink: { value: new THREE.Vector3(...themes[useThemeStore.getState().theme].ink) },
     };
+
+    uniformsRef.current = uniforms;
 
     const material = new THREE.ShaderMaterial({
       vertexShader: vertexSrc,
@@ -90,6 +95,9 @@ export default function NoiseShader({
     let targetMouseTime = 0;
     let mouseTime = 0;
     let dirty = true;
+    markDirtyRef.current = () => {
+      dirty = true;
+    };
 
     const onMove = (e: MouseEvent) => {
       const rect = container.getBoundingClientRect();
@@ -152,51 +160,29 @@ export default function NoiseShader({
       geometry.dispose();
       material.dispose();
       renderer.dispose();
+      uniformsRef.current = null;
+      markDirtyRef.current = null;
     };
   }, [intensity]);
 
+  useEffect(() => {
+    let prevTheme = useThemeStore.getState().theme;
+
+    return useThemeStore.subscribe((state) => {
+      if (state.theme === prevTheme) return;
+      prevTheme = state.theme;
+
+      const uniforms = uniformsRef.current;
+      if (!uniforms) return;
+
+      uniforms.u_ink.value.set(...themes[state.theme].ink);
+      markDirtyRef.current?.();
+    });
+  }, []);
+
   return (
-    <div
-      ref={containerRef}
-      className="relative h-full w-full "
-    >
-      {/* <ul className="text-[12px] text-white/60 font-serif absolute top-1/2 -translate-y-1/2 right-5 flex gap-5">
-        <li className="flex items-center gap-[12px]">
-          <Image
-            src="/figma/ellipse.svg"
-            alt=""
-            width={10}
-            height={10}
-            className="shrink-0"
-          />
-          <span className="text-[12px] text-white/60 font-serif">21:34 (CET)</span>
-        </li>
-        <li className="flex items-center gap-[12px]">
-          <Image
-            src="/figma/loc1.svg"
-            alt=""
-            width={12}
-            height={12}
-            className="shrink-0"
-          />
-          <span style={{ letterSpacing: "-0.264px" }}>Marseille, FR</span>
-        </li>
-        <li className="flex items-center gap-[12px]">
-          <Image
-            src="/figma/globe.svg"
-            alt=""
-            width={12}
-            height={12}
-            className="shrink-0"
-          />
-          <span style={{ letterSpacing: "-0.264px" }}>Worldwide</span>
-        </li>
-      </ul> */}
-      <canvas
-        ref={canvasRef}
-        aria-hidden
-        className="h-full w-full"
-      />
+    <div ref={containerRef} className="relative h-full w-full ">
+      <canvas ref={canvasRef} aria-hidden className="h-full w-full" />
     </div>
   );
 }

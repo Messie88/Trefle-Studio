@@ -7,6 +7,8 @@ import { useState } from "react";
 
 // import clsx from "clsx";
 import { GSAP } from "@/app/components/gsap";
+import ThemeProvider from "@/app/components/theme-provider";
+import BackgroundNoise from "@/app/components/background-noise";
 import { ScrollSmoother } from "gsap/ScrollSmoother";
 
 export default function ClientLayout({ children }: PropsWithChildren) {
@@ -37,10 +39,16 @@ export default function ClientLayout({ children }: PropsWithChildren) {
   // ScrollSmoother wrappers are client-only: avoids hydration mismatches when
   // extensions inject nodes into <body> before React hydrates.
   if (!mounted) {
-    return <>{children}</>;
+    return (
+      <ThemeProvider>
+        {children}
+        <BackgroundNoise />
+      </ThemeProvider>
+    );
   }
 
   return (
+    <ThemeProvider>
     <div id="smooth-wrapper">
       <div
         id="smooth-content"
@@ -50,5 +58,7 @@ export default function ClientLayout({ children }: PropsWithChildren) {
       </div>
       <GSAP scrollTrigger />
     </div>
+      <BackgroundNoise />
+    </ThemeProvider>
   );
 }

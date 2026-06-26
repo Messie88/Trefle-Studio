@@ -11,6 +11,7 @@ uniform float u_time;
 uniform vec2 u_res;
 uniform vec2 u_mouse;
 uniform float u_intensity;
+uniform vec3 u_ink;
 
 // --- Tunables (mirror the turtletoy sliders) ----------------------------
 const float WRINKLES   = 10.0;
@@ -99,8 +100,6 @@ void main() {
     currentMin = h;
   }
 
-  // Line ink: cream #fef1c5; alpha from mask × intensity (no solid background).
-  vec3 ink = vec3(0.8314, 0.7725, 0.9961);
   float a = lineMask * u_intensity;
-  gl_FragColor = vec4(ink, a);
+  gl_FragColor = vec4(u_ink, a);
 }

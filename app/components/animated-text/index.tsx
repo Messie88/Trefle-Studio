@@ -65,11 +65,17 @@ const AnimatedText = ({
     };
   }, []);
 
+  const staggerDep =
+    typeof stagger === "number" ? stagger : JSON.stringify(stagger);
+
   useGSAP(
     () => {
       if (!containerRef.current) return;
       const isResizeReflow = isResizeReflowRef.current;
       isResizeReflowRef.current = false;
+
+      if (hasAnimatedRef.current && !isResizeReflow) return;
+
       linesRef.current = [];
 
       let elements = [];
@@ -173,7 +179,7 @@ const AnimatedText = ({
         ease,
         resizeKey,
         scrub,
-        stagger,
+        staggerDep,
         tl,
         type,
       ],
