@@ -5,6 +5,7 @@ import { buildThemeInitScript } from "@/app/lib/theme-init-script";
 import ClientLayout from "./layout-client";
 import { Hedvig_Letters_Serif } from "next/font/google";
 import "./globals.css";
+import Navbar from "./components/navbar";
 
 const hedvig = Hedvig_Letters_Serif({
   subsets: ["latin"],
@@ -33,7 +34,10 @@ export default function RootLayout({
         />
       </head>
       <body suppressHydrationWarning>
-        <ClientLayout>{children}</ClientLayout>
+        <ClientLayout>
+          <Navbar />
+          {children}
+        </ClientLayout>
       </body>
     </html>
   );

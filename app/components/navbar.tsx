@@ -37,6 +37,7 @@ export default function Navbar() {
   const hasPositioned = useRef(false);
   const prevTheme = useRef(theme);
   const contactRef = useRef<HTMLDivElement>(null);
+  const navRef = useRef<HTMLElement>(null);
 
   useGSAP(
     () => {
@@ -77,8 +78,15 @@ export default function Navbar() {
         duration: 0.5,
         delay: 0.75,
       });
+
+      // Reveal navbar images (logo, contact arrow), hidden via opacity-0
+      gsap.fromTo(
+        "img",
+        { autoAlpha: 0, y: 10 },
+        { autoAlpha: 1, y: 0, duration: 0.5, delay: 1 },
+      );
     },
-    { scope: listRef, dependencies: [] },
+    { scope: navRef, dependencies: [] },
   );
 
   useGSAP(
@@ -125,7 +133,7 @@ export default function Navbar() {
   );
 
   return (
-    <nav className="relative flex shrink-0 items-center justify-between">
+    <nav ref={navRef} className="relative flex shrink-0 items-center justify-between p-5 ">
       <Link href="/">
         <Image src="/images/logo.svg" alt="" width={40} height={40} className="opacity-0" />
       </Link>
@@ -138,7 +146,7 @@ export default function Navbar() {
         <div
           ref={indicatorRef}
           aria-hidden
-          className="pointer-events-none absolute left-[-16px] size-4 border-2 border-(--theme-fg) z-50"
+          className="pointer-events-none absolute -left-4 size-4 border-2 border-(--theme-fg) z-50"
         />
 
         {themeOrder.map((id, index) => (
@@ -156,17 +164,23 @@ export default function Navbar() {
           </li>
         ))}
       </ul>
-
-      <a href="mailto:contact@treflestudio.com">
-        <div ref={contactRef} className="flex items-center gap-1">
-          <AnimatedText type="chars" stagger={CONTACT_STAGGER} delay={0.5} duration={1.5}>
-            <span className="font-sans text-[16px] md:text-[20px]">Contact</span>
-          </AnimatedText>
-          <div className="relative size-3 md:size-3.5">
-            <Image src="/images/arrow.svg" alt="" fill className="opacity-0" />
+      <div className="flex gap-3 font-sans text-[16px] md:text-[20px]">
+        <AnimatedText type="chars" stagger={CONTACT_STAGGER} delay={0.5} duration={1.5}>
+          <Link href='/lab'>
+            Lab
+          </Link>
+        </AnimatedText>
+        <a href="mailto:contact@treflestudio.com">
+          <div ref={contactRef} className="flex items-center gap-1">
+            <AnimatedText type="chars" stagger={CONTACT_STAGGER} delay={0.5} duration={1.5}>
+              <span>Contact</span>
+            </AnimatedText>
+            <div className="relative size-3 md:size-3.5">
+              <Image src="/images/arrow.svg" alt="" fill className="opacity-0" />
+            </div>
           </div>
-        </div>
-      </a>
+        </a>
+      </div>
     </nav>
   );
 }

@@ -28,7 +28,6 @@ export default function Hero() {
 
   return (
     <main className="flex h-svh flex-col justify-between p-5 overflow-hidden">
-      <Navbar />
       <TimeStamp />
       <div className="relative min-h-0 w-full flex-1 overflow-hidden my-4">
         <NoiseShader />

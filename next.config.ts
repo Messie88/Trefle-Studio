@@ -2,12 +2,13 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
-  webpack(config) {
-    config.module.rules.push({
-      test: /\.(glsl|vert|frag)$/,
-      type: "asset/source",
-    });
-    return config;
+  turbopack: {
+    // Import shader files as raw strings
+    rules: {
+      "*.{glsl,vert,frag}": {
+        type: "raw",
+      },
+    },
   },
 };
 

@@ -43,6 +43,8 @@ const TimeStamp = () => {
         delay: 1,
       },
     );
+  }, {
+    scope: ref
   });
 
   return (
