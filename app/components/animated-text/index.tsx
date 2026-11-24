@@ -78,6 +78,13 @@ const AnimatedText = ({
 
       linesRef.current = [];
 
+      // useGSAP reverts this context (SplitText + visibility) when layout effects
+      // are cleaned up, e.g. on client navigation. Reset the flag so the next run
+      // splits and reveals the text again instead of returning early.
+      const resetOnRevert = () => {
+        hasAnimatedRef.current = false;
+      };
+
       let elements = [];
 
       if (containerRef.current.hasAttribute("data-copy-wrapper")) {
@@ -120,7 +127,7 @@ const AnimatedText = ({
       // Keep text reflowed on resize without replaying the intro animation.
       if (isResizeReflow && hasAnimatedRef.current) {
         gsap.set(linesRef.current, { yPercent: 0 });
-        return;
+        return resetOnRevert;
       }
 
       const animationProps = {
@@ -169,6 +176,8 @@ const AnimatedText = ({
           gsap.to(linesRef.current, animationProps);
         }
       }
+
+      return resetOnRevert;
     },
     {
       scope: containerRef,

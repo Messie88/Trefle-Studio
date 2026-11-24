@@ -36,3 +36,16 @@ h1 {
   text-box-trim: trim-end;
   text-box-edge: text alphabetic;
 }
+
+/* SplitText line mask clips at the baseline once trimmed, cutting glyph
+   overshoot (round letters dip below baseline). Extend the clip area with
+   padding, cancel it with a negative margin, and trim on the line itself
+   (padding stops text-box-trim from propagating from the h1). */
+h1 .line {
+  text-box: trim-end text alphabetic;
+}
+
+h1 .line-mask {
+  padding-bottom: 0.1em;
+  margin-bottom: -0.1em;
+}

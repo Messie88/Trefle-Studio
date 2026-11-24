@@ -32,7 +32,7 @@ export default function Hero() {
       <div className="relative min-h-0 w-full flex-1 overflow-hidden my-4">
         <NoiseShader />
       </div>
-      <div ref={textRef} className="flex flex-col lg:flex-row lg:justify-between">
+      <div ref={textRef} className="flex flex-col gap-2 lg:flex-row lg:justify-between lg:items-end ">
         <AnimatedText
           type="chars"
           stagger={{
@@ -41,7 +41,7 @@ export default function Hero() {
           }}
           duration={1.5}
         >
-          <h1 className="flex">
+          <h1>
             Trèfle Studio
             <span className="ml-1 inline-block">
               <Image src="/images/trefle.svg" alt="" width={12} height={17} />
@@ -57,7 +57,7 @@ export default function Hero() {
             from: "random",
           }}
         >
-          <p className="w-full text-lg lg:max-w-[680px] lg:text-[28px] leading-[1.2] text-justify">
+          <p className="w-full text-lg lg:max-w-170 lg:text-[28px] leading-[1.2] text-justify">
             Basé à Marseille, nous concevons des sites internets taillés sur-mesure, pensés pour se
             démarquer (
             <Link className="border-b-0 border-(--theme-fg)" href="/services">

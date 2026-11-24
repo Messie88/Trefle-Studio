@@ -133,14 +133,14 @@ export default function Navbar() {
   );
 
   return (
-    <nav ref={navRef} className="relative flex shrink-0 items-center justify-between p-5 ">
+    <nav ref={navRef} className="absolute w-full top-0 flex shrink-0 items-center justify-between p-5 ">
       <Link href="/">
         <Image src="/images/logo.svg" alt="" width={40} height={40} className="opacity-0" />
       </Link>
 
       <ul
         ref={listRef}
-        className="relative flex gap-[2px] items-center justify-between max-h-4 h-4 overflow-hidden px-1 py-4"
+        className="relative flex gap-0.5 items-center justify-between max-h-4 h-4 overflow-hidden px-1 py-4"
         role="list"
       >
         <div
