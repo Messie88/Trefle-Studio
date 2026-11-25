@@ -99,7 +99,7 @@ export default function NoiseShader({ intensity = 0.5, className }: NoiseShaderP
       dirty = true;
     };
 
-    const onMove = (e: MouseEvent) => {
+    const onMove = (e: PointerEvent) => {
       const rect = container.getBoundingClientRect();
       const w = rect.width || 1;
       const h = rect.height || 1;
@@ -112,7 +112,8 @@ export default function NoiseShader({ intensity = 0.5, className }: NoiseShaderP
       targetMy = ny;
       dirty = true;
     };
-    window.addEventListener("mousemove", onMove);
+    // pointermove covers mouse, pen and touch drags (mousemove never fires during a touch drag).
+    window.addEventListener("pointermove", onMove);
 
     const syncSize = () => {
       const w = container.clientWidth;
@@ -156,7 +157,7 @@ export default function NoiseShader({ intensity = 0.5, className }: NoiseShaderP
     return () => {
       cancelAnimationFrame(raf);
       ro.disconnect();
-      window.removeEventListener("mousemove", onMove);
+      window.removeEventListener("pointermove", onMove);
       geometry.dispose();
       material.dispose();
       renderer.dispose();
@@ -181,7 +182,7 @@ export default function NoiseShader({ intensity = 0.5, className }: NoiseShaderP
   }, []);
 
   return (
-    <div ref={containerRef} className="relative h-full w-full ">
+    <div ref={containerRef} className="relative h-full w-full touch-none">
       <canvas ref={canvasRef} aria-hidden className="h-full w-full" />
     </div>
   );

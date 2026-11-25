@@ -4863,18 +4863,28 @@ export function KineticCluster({ className, modelUrl, settings, style }: Kinetic
     observer.observe(canvas);
     resize();
 
-    const handleMove = (event: PointerEvent) => {
-      if (event.buttons !== 0) return engine.setPointer(null);
+    const setPointerFrom = (event: PointerEvent) => {
       const bounds = canvas.getBoundingClientRect();
       engine.setPointer({
         x: ((event.clientX - bounds.left) / bounds.width) * 2 - 1,
         y: -(((event.clientY - bounds.top) / bounds.height) * 2 - 1),
       });
     };
+    const handleMove = (event: PointerEvent) => {
+      // A touch is always "pressed", so a finger drag acts as hover.
+      if (event.buttons !== 0 && event.pointerType !== "touch") return engine.setPointer(null);
+      setPointerFrom(event);
+    };
+    const handleDown = (event: PointerEvent) => {
+      if (event.pointerType === "touch") return setPointerFrom(event);
+      engine.setPointer(null);
+    };
     const handleLeave = () => engine.setPointer(null);
     canvas.addEventListener("pointermove", handleMove);
     canvas.addEventListener("pointerleave", handleLeave);
-    canvas.addEventListener("pointerdown", handleLeave);
+    canvas.addEventListener("pointerdown", handleDown);
+    canvas.addEventListener("pointerup", handleLeave);
+    canvas.addEventListener("pointercancel", handleLeave);
     engine.start();
 
     let disposed = false;
@@ -4936,7 +4946,9 @@ export function KineticCluster({ className, modelUrl, settings, style }: Kinetic
       observer.disconnect();
       canvas.removeEventListener("pointermove", handleMove);
       canvas.removeEventListener("pointerleave", handleLeave);
-      canvas.removeEventListener("pointerdown", handleLeave);
+      canvas.removeEventListener("pointerdown", handleDown);
+      canvas.removeEventListener("pointerup", handleLeave);
+      canvas.removeEventListener("pointercancel", handleLeave);
       engine.dispose();
       geometry.dispose();
       dropProxy();
@@ -4954,6 +4966,8 @@ export function KineticCluster({ className, modelUrl, settings, style }: Kinetic
         background: KINETIC_CLUSTER_BACKGROUND ?? "transparent",
         display: "block",
         height: "100%",
+        // Keep finger drags on the canvas instead of scrolling/zooming the page.
+        touchAction: "none",
         width: "100%",
         ...style,
       }}
