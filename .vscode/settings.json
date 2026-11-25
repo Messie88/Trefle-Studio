@@ -5,6 +5,11 @@
   "editor.insertSpaces": true,
   "files.insertFinalNewline": true,
   "files.trimTrailingWhitespace": true,
+  // Tailwind v4 at-rules (@theme, @apply...) are unknown to the built-in CSS
+  // language; the Tailwind CSS extension's language mode understands them.
+  "files.associations": {
+    "*.css": "tailwindcss"
+  },
   "editor.codeActionsOnSave": {
     "source.fixAll.eslint": "explicit"
   },
