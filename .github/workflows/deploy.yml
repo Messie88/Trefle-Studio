@@ -1,9 +1,10 @@
 # Redeploys treflestudio.com on every push to main.
 #
-# The VPS runs Docker Compose (/docker/trefle-studio-nextjs). Its `app` service
-# clones this repo, builds and starts Next.js when the container is created, so
-# a deploy is just recreating that container. The SSH key used here is locked
-# on the VPS (authorized_keys `command=`) to that single compose command.
+# The VPS runs Docker Compose (/docker/trefle-studio-nextjs, files in deploy/).
+# deploy/deploy.sh builds the new image while the current container keeps
+# serving, then swaps containers; Caddy holds requests during the swap, so
+# there is no downtime. The SSH key used here is locked on the VPS
+# (authorized_keys `command=`) to that script.
 
 name: Deploy
 
@@ -14,7 +15,8 @@ on:
 
 concurrency:
   group: deploy-production
-  cancel-in-progress: true
+  # Queue instead of cancel: killing a deploy mid-swap could leave the app down.
+  cancel-in-progress: false
 
 jobs:
   deploy:
@@ -31,22 +33,21 @@ jobs:
           chmod 600 ~/.ssh/deploy_key
           printf '%s\n' "$VPS_KNOWN_HOSTS" > ~/.ssh/known_hosts
 
-      - name: Recreate app container
+      - name: Build and swap on the VPS
         env:
           VPS_HOST: ${{ secrets.VPS_HOST }}
-        # The forced command on the VPS runs the redeploy; nothing is sent here.
-        run: ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=yes -o BatchMode=yes "root@$VPS_HOST"
+        # The forced command on the VPS runs deploy.sh; nothing is sent here.
+        run: ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=yes -o BatchMode=yes -o ServerAliveInterval=30 "root@$VPS_HOST"
 
-      - name: Wait for the site to come back
-        # The container clones, installs and builds before serving: allow ~10 min.
+      - name: Check the site
         run: |
-          for i in $(seq 1 60); do
+          for i in $(seq 1 12); do
             code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 10 https://treflestudio.com/ || true)
             echo "attempt $i: HTTP $code"
             if [ "$code" = "200" ]; then exit 0; fi
             sleep 10
           done
-          echo "treflestudio.com did not return 200 within 10 minutes"
+          echo "treflestudio.com did not return 200 within 2 minutes"
           exit 1
 
       - name: Remove SSH key

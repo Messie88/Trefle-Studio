@@ -1,0 +1,9 @@
+# Lives on the VPS at /docker/trefle-studio-nextjs/Caddyfile.
+treflestudio.com {
+	reverse_proxy app:3000 {
+		# While the app container is swapped, hold requests and retry
+		# instead of answering 502.
+		lb_try_duration 30s
+		lb_try_interval 250ms
+	}
+}

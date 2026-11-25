@@ -1,0 +1,12 @@
+.git
+.github
+.next
+.pnpm-store
+.vscode
+.claude
+node_modules
+out
+deploy
+*.log
+.env*
+tsconfig.tsbuildinfo
